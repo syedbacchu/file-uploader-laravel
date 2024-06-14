@@ -1,0 +1,49 @@
+{
+    "name": "sdtech/file-uploader-laravel",
+    "description": "Simple library to upload image and file with validation",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Sd bacchu",
+            "email": "bacchu.cse11@gmail.com"
+        }
+    ],
+    "keywords": [
+        "file",
+        "image",
+        "gd",
+        "upload",
+        "laravel",
+        "imagick",
+        "watermark",
+        "thumbnail",
+        "resize"
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "php": "^8.1",
+        "ext-mbstring": "*",
+        "intervention/gif": "^4.1",
+        "intervention/image": "^3.6"
+    },
+    "autoload": {
+        "psr-4": {
+            "Sdtech\\FileUploaderLaravel\\": "src/"
+        },
+        "files": [
+            "src/Service/FileUploadLaravelService.php"
+        ]
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Sdtech\\FileUploaderLaravel\\Providers\\FileUploadLaravelServiceProviders"
+            ]
+        }
+    },
+    "prefer-stable": true
+}
