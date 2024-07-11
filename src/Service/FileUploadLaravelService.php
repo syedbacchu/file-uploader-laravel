@@ -2,63 +2,51 @@
 
 namespace Sdtech\FileUploaderLaravel\Service;
 
-use Intervention\Image\ImageManager;
-use Intervention\Image\Drivers\Imagick\Driver;
-
 /*
 
 */
 
-class FileUploadLaravelService
-
+class FileUploadLaravelService extends BaseService
 {
-
-    private $imgManager;
+    private $imageService;
     public function __construct()
     {
-        $this->imgManager = new ImageManager(new Driver());
-    }
-
-    public function testing(){
-        return 'ok google';
+        $this->imageService = new ImageUploadService();
     }
 
 
-    private function is_setup() {
-        return true;
-    }
-
-    private function sendResponse($status,$message = "",$data = [])
-    {
-        return [
-            'success' => $status,
-            'message' => $message ? $message : 'Something went wrong',
-            'data' => $data
-        ];
-    }
 
 
     /**
-     * test upload
-     * @param email
-     * @param password
-     * @param google_auth_otp
-     *
+     * upload image in storage folder
+     * @param FILE $reqFile (mandetory) uploaded file
+     * @param STRING $path (mandetory) file path where upload iamge
+     * @param STRING $oldFile (optional) old file name
+     * @param ARRAY $allowedImageType  (optional) allowed image type like ["png","webp","jpeg"]
+     * @param INT $maxSize (optional) max upload size in KB 1024KB = 1MB
+     * @param STRING $format (optional) image output format default = webp
+     * @param INT $width (optional) image width
+     * @param INT $height (optional) image height
+     * @param INT $quality (optional) image quality default = 80
      */
-    public function testUpload($file,$path) {
-        try {
-            if ($file) {
-                $imgName = time().uniqid().$file->getClientOriginalExtension();
-                $img = $this->imgManager->read($file);
-                $img = $img->resize(370,246);
-                $img->toJpeg(80)->save(storage_path('app/public/',$path).$imgName);
-
-            }
-            return $this->sendResponse(true);
-        } catch(\Exception $e) {
-            return $this->sendResponse(false);
-        }
+    public function _uploadImageInStorage($reqFile,$path,$old_file="",$allowedImageType=[],$maxSize="", $format='',$width="",$height=null,$quality=null) {
+        return $this->imageService->uploadImageInStorage($reqFile,$path,$old_file,$allowedImageType,$maxSize,$format,$width,$height,$quality);
     }
 
+    /**
+     * upload image in main public folder
+     * @param FILE $reqFile (mandetory) uploaded file
+     * @param STRING $path (mandetory) file path where upload iamge
+     * @param STRING $oldFile (optional) old file name
+     * @param ARRAY $allowedImageType  (optional) allowed image type like ["png","webp","jpeg"]
+     * @param INT $maxSize (optional) max upload size in KB 1024KB = 1MB
+     * @param STRING $format (optional) image output format default = webp
+     * @param INT $width (optional) image width
+     * @param INT $height (optional) image height
+     * @param INT $quality (optional) image quality default = 80
+     */
+    public function _uploadImageInPublic($reqFile,$path,$old_file="",$allowedImageType=[],$maxSize="", $format='',$width="",$height=null,$quality=null) {
+        return $this->imageService->uploadImageInPublic($reqFile,$path,$old_file,$allowedImageType,$maxSize,$format,$width,$height,$quality);
+    }
 
 }

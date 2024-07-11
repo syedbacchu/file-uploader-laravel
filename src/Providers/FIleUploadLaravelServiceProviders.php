@@ -38,7 +38,7 @@ class FileUploadLaravelServiceProviders extends ServiceProvider
      */
     public function register()
     {
-        $this->app->singleton(FileUploadLaravelService::class, function ($app) {
+        $this->app->singleton("FileUploadLaravelService", function ($app) {
             return new FileUploadLaravelService();
         });
     }
@@ -52,7 +52,7 @@ class FileUploadLaravelServiceProviders extends ServiceProvider
     {
         $this->publishes([
             __DIR__ . '/../Config/fileuploaderlaravel.php' => config_path('fileuploaderlaravel.php'),
-        ], 'bitgolaravelapi');
+        ], 'fileuploaderlaravel');
     }
 
 }
