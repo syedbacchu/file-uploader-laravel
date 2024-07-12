@@ -53,17 +53,20 @@ The current features are :
     'AWS_URL' => env('AWS_URL')
    ```
 4. run this commad 
-```bash
+``` bash
    php artisan storage:link
-   sudo chmod -R 777 storage
+   
+```
+``` bash
+    sudo chmod -R 777 storage
     ```
 ## Uses
-1. We provide a sample code of functionality that will help you to integrate easily
+5. We provide a sample code of functionality that will help you to integrate easily
 
-- some functions
-``` bash
-/**
-     * upload image in storage folder
+
+
+### upload image in storage folder
+     /** 
      * @param FILE $reqFile (mandetory) uploaded file
      * @param STRING $path (mandetory) file path where upload iamge
      * @param STRING $oldFile (optional) old file name
@@ -74,10 +77,12 @@ The current features are :
      * @param INT $height (optional) image height
      * @param INT $quality (optional) image quality default = 80
      */
+  ``` bash   
     uploadImageInStorage($reqFile,$path,$old_file="",$allowedImageType=[],$maxSize="", $format='',$width="",$height=null,$quality=null) 
-
+```
+### upload image in main public folder
     /**
-     * upload image in main public folder
+     * 
      * @param FILE $reqFile (mandetory) uploaded file
      * @param STRING $path (mandetory) file path where upload iamge
      * @param STRING $oldFile (optional) old file name
@@ -88,41 +93,53 @@ The current features are :
      * @param INT $height (optional) image height
      * @param INT $quality (optional) image quality default = 80
      */
+     
+    ``` bash 
     uploadImageInPublic($reqFile,$path,$old_file="",$allowedImageType=[],$maxSize="",$format='',$width="",$height=null,$quality=null) 
-
+```
+### upload file in storage folder
     /**
-     * upload file in storage folder
+     * 
      * @param FILE $reqFile (mandetory) uploaded file
      * @param STRING $path (mandetory) file path where upload iamge
      * @param STRING $oldFile (optional) old file name
      * @param ARRAY $allowedImageType  (optional) allowed image type like ["png","webp","jpeg"]
      * @param INT $maxSize (optional) max upload size in KB 1024KB = 1MB
      */
+     ``` bash
     uploadFileInStorage($reqFile,$path,$old_file="",$allowedImageType=[],$maxSize="")
-
+    ```
+### upload file in public folder
      /**
-     * upload file in public folder
+     * 
      * @param FILE $reqFile (mandetory) uploaded file
      * @param STRING $path (mandetory) file path where upload iamge
      * @param STRING $oldFile (optional) old file name
      * @param ARRAY $allowedImageType  (optional) allowed image type like ["png","webp","jpeg"]
      * @param INT $maxSize (optional) max upload size in KB 1024KB = 1MB
      */
+
+     ``` bash
     ploadFileInPublic($reqFile,$path,$old_file="",$allowedImageType=[],$maxSize="")
+```
 
-
-    // delete file path
+    ### delete file path
+    ``` bash
     unlinkFile($path,$oldFile)
-
-    // get file view path for storage folder
+```
+    ### get file view path for storage folder
+    ```bash
     showStorageFileViewPath($path,$fileName)
-
-    // get file view path for public folder
+```
+    ### get file view path for public folder
+    ```bash
     showFileViewPath($path,$fileName)
-
-    // get allowed image type
+```
+    ### get allowed image type
+    ```bash
     allowedTypes()
-
-    // get allowed image type
+```
+    ### get allowed image type
+    ```bash
     allowedFileExtensions()
 ``` 
