@@ -40,8 +40,8 @@ The current features are :
 ## configuration
 1. Go to your config folder, then open "fileuploaderlaravel.php" file
 2. here you must add that info or add the info to your .env file .
-3.
- ``` bash
+
+ ```bash
     'ALLOWED_IMAGE_TYPE' => env('ALLOWED_IMAGE_TYPE'),
     'MAX_UPLOAD_IMAGE_SIZE' => env('MAX_UPLOAD_IMAGE_SIZE') // default 2048 KB
     'DEFAULT_IMAGE_FORMAT' => env('DEFAULT_IMAGE_FORMAT') // default 'webp',
@@ -53,11 +53,10 @@ The current features are :
     'AWS_URL' => env('AWS_URL')
    ```
 4. run this commad 
-``` bash
+```bash
    php artisan storage:link
-   
 ```
-``` bash
+```bash
     sudo chmod -R 777 storage
     ```
 ## Uses
@@ -77,7 +76,8 @@ The current features are :
      * @param INT $height (optional) image height
      * @param INT $quality (optional) image quality default = 80
      */
-  ``` bash   
+
+  ```bash   
     uploadImageInStorage($reqFile,$path,$old_file="",$allowedImageType=[],$maxSize="", $format='',$width="",$height=null,$quality=null) 
 ```
 ### upload image in main public folder
@@ -94,7 +94,7 @@ The current features are :
      * @param INT $quality (optional) image quality default = 80
      */
      
-    ``` bash 
+    ```bash 
     uploadImageInPublic($reqFile,$path,$old_file="",$allowedImageType=[],$maxSize="",$format='',$width="",$height=null,$quality=null) 
 ```
 ### upload file in storage folder
@@ -106,7 +106,7 @@ The current features are :
      * @param ARRAY $allowedImageType  (optional) allowed image type like ["png","webp","jpeg"]
      * @param INT $maxSize (optional) max upload size in KB 1024KB = 1MB
      */
-     ``` bash
+     ```bash
     uploadFileInStorage($reqFile,$path,$old_file="",$allowedImageType=[],$maxSize="")
     ```
 ### upload file in public folder
@@ -119,12 +119,12 @@ The current features are :
      * @param INT $maxSize (optional) max upload size in KB 1024KB = 1MB
      */
 
-     ``` bash
+     ```bash
     ploadFileInPublic($reqFile,$path,$old_file="",$allowedImageType=[],$maxSize="")
 ```
 
     ### delete file path
-    ``` bash
+    ```bash
     unlinkFile($path,$oldFile)
 ```
     ### get file view path for storage folder
