@@ -34,9 +34,50 @@ class ValidationService
         ];
     }
 
+    /**
+     * Supported File Types:
+        * ZIP: application/zip, application/x-zip-compressed
+        * PDF: application/pdf
+        * Word: application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document
+        * CSV: text/csv
+        * Excel: application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+        * Text: text/plain
+        * Video: video/mp4, video/x-msvideo, video/x-ms-wmv, video/quicktime
+        * Audio: audio/mpeg, audio/wav, audio/ogg, audio/mp4
+     */
+    public function allowedFileTypes() {
+        return [
+            'application/zip',
+            'application/x-zip-compressed',
+            'application/pdf',
+            'application/msword',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'text/csv',
+            'application/vnd.ms-excel',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'text/plain',
+            'video/mp4',
+            'video/x-msvideo',
+            'video/x-ms-wmv',
+            'video/quicktime',
+            'audio/mpeg',
+            'audio/wav',
+            'audio/ogg',
+            'audio/mp4'
+        ];
+    }
+
+    public function allowedFileExtensions($userInput = []) {
+        if(!empty($userInput) && isset($userInput[0])) {
+            return $userInput;
+        } else {
+            return ['zip', 'pdf', 'doc', 'docx', 'csv', 'xls', 'xlsx', 'txt', 'mp4', 'avi', 'wmv', 'mov', 'mpeg', 'wav', 'ogg', 'mp3'];
+        }
+    }
+
     public function allowedMimeTypes($userInput = []) {
         $allowedTypes = [];
-        if (!empty($userInput)) {
+        if (!empty($userInput) && isset($userInput[0])) {
             foreach ($userInput as $val) {
                 $allowedTypes[] = 'image/' . $val;
             }
@@ -48,9 +89,13 @@ class ValidationService
         return $allowedTypes;
     }
 
-    private function validateUploadFileType($type,$file,$allowedTypes) {
+    private function validateUploadFileType($type,$file,$allowedType=[]) {
+        // Check for file errors
+        if (!$file->isValid()) {
+            return $this->sendResponse(true,400,__('File upload error'));
+        }
         if ($type == 'image') {
-            $allowedTypes = $this->allowedMimeTypes($allowedTypes);
+            $allowedTypes = $this->allowedMimeTypes($allowedType);
             $data['mime_type'] = $file->getMimeType();
 
             if (in_array($data['mime_type'], $allowedTypes)) {
@@ -59,24 +104,33 @@ class ValidationService
                 return $this->sendResponse(false,422,__('Invalid image type. supported types are '). implode(',',$allowedTypes));
             }
         } else {
+            $allowedTypes = $this->allowedFileTypes();
+            $data['mime_type'] = $file->getMimeType();
+            if (!in_array($data['mime_type'],$allowedTypes)) {
+                return $this->sendResponse(false,422,__('Inalid File'));
+            }
 
+            $allowedExtensions = $this->allowedFileExtensions($allowedType);
+            $fileExtension = strtolower($file->getClientOriginalExtension());
+            
+            if (!in_array($fileExtension,$allowedExtensions)) {
+                return $this->sendResponse(false,422,__('Invalid file type. supported types are '). implode(',',$allowedExtensions));
+            }
+
+            return $this->sendResponse(true,200,__('success'));
         }
     }
 
     private function validateUploadFileSize($type,$file,$maxSize) {
-        if ($type == 'image') {
-            $size = $file->getSize(); // Get the size of the image in bytes
+        $size = $file->getSize(); // Get the size of the image in bytes
 
-            // Convert maxSize from KB to bytes
-            $maxUploadSize = !empty($maxSize) && $maxSize > 0 ? intval($maxSize) * 1024 : intval(config('fileuploaderlaravel.MAX_UPLOAD_IMAGE_SIZE')); // Size in bytes
+        // Convert maxSize from KB to bytes
+        $maxUploadSize = !empty($maxSize) && $maxSize > 0 ? intval($maxSize) * 1024 : intval(config('fileuploaderlaravel.MAX_UPLOAD_IMAGE_SIZE')); // Size in bytes
 
-            if ($size > $maxUploadSize) {
-                return $this->sendResponse(false, 422, __('Image size exceeds the maximum allowed size of ') . $maxSize . ' KB');
-            }
-            return $this->sendResponse(true, 200, __('success'));
-        } else {
-
+        if ($size > $maxUploadSize) {
+            return $this->sendResponse(false, 422, __('File size exceeds the maximum allowed size of ') . $maxSize . ' KB');
         }
+        return $this->sendResponse(true, 200, __('success'));
     }
 
     public function imageValidationBeforeUpload($file, $allowedTypes = [], $maxSize="") {
@@ -119,10 +173,25 @@ class ValidationService
                 return $this->sendResponse(false,422,__('Invalid output extenstion , allowed extensions are '.implode(',',$this->allowedTypes())));
             }
         } else {
-
+            $data['file_ext_original'] = $file->getClientOriginalExtension();
+            $data['file_ext'] = $data['file_ext_original'];
+            $data['file_name'] = time().uniqid().'.'.$data['file_ext'];
         }
 
         return $this->sendResponse(true,200,__('success'),$data);
     }
 
+
+    public function fileValidationBeforeUpload($file, $allowedTypes = [], $maxSize="") {
+        $checkFileType = $this->validateUploadFileType('file',$file,$allowedTypes);
+        if ($checkFileType['success'] == false) {
+            return $checkFileType;
+        }
+        $checkFileSize = $this->validateUploadFileSize('file',$file,$maxSize);
+        if ($checkFileSize['success'] == false) {
+            return $checkFileSize;
+        }
+
+        return $this->sendResponse(true, 200, __('success'));
+    }
 }

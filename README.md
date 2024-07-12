@@ -42,9 +42,87 @@ The current features are :
 2. here you must add that info or add the info to your .env file .
 3.
  ``` bash
-    'TEST' => env('TEST') ?? "",
+    'ALLOWED_IMAGE_TYPE' => env('ALLOWED_IMAGE_TYPE'),
+    'MAX_UPLOAD_IMAGE_SIZE' => env('MAX_UPLOAD_IMAGE_SIZE') // default 2048 KB
+    'DEFAULT_IMAGE_FORMAT' => env('DEFAULT_IMAGE_FORMAT') // default 'webp',
+    'DEFAULT_IMAGE_QUALITY' => env('DEFAULT_IMAGE_QUALITY') // default 80,
+    'AWS_ACCESS_KEY_ID' => env('AWS_ACCESS_KEY_ID'),
+    'AWS_SECRET_ACCESS_KEY' => env('AWS_SECRET_ACCESS_KEY'),
+    'AWS_DEFAULT_REGION' => env('AWS_DEFAULT_REGION'),
+    'AWS_BUCKET' => env('AWS_BUCKET'),
+    'AWS_URL' => env('AWS_URL')
    ```
-
+4. run this commad 
+```bash
+   php artisan storage:link
+   sudo chmod -R 777 storage
+    ```
 ## Uses
 1. We provide a sample code of functionality that will help you to integrate easily
 
+- some functions
+``` bash
+/**
+     * upload image in storage folder
+     * @param FILE $reqFile (mandetory) uploaded file
+     * @param STRING $path (mandetory) file path where upload iamge
+     * @param STRING $oldFile (optional) old file name
+     * @param ARRAY $allowedImageType  (optional) allowed image type like ["png","webp","jpeg"]
+     * @param INT $maxSize (optional) max upload size in KB 1024KB = 1MB
+     * @param STRING $format (optional) image output format default = webp
+     * @param INT $width (optional) image width
+     * @param INT $height (optional) image height
+     * @param INT $quality (optional) image quality default = 80
+     */
+    uploadImageInStorage($reqFile,$path,$old_file="",$allowedImageType=[],$maxSize="", $format='',$width="",$height=null,$quality=null) 
+
+    /**
+     * upload image in main public folder
+     * @param FILE $reqFile (mandetory) uploaded file
+     * @param STRING $path (mandetory) file path where upload iamge
+     * @param STRING $oldFile (optional) old file name
+     * @param ARRAY $allowedImageType  (optional) allowed image type like ["png","webp","jpeg"]
+     * @param INT $maxSize (optional) max upload size in KB 1024KB = 1MB
+     * @param STRING $format (optional) image output format default = webp
+     * @param INT $width (optional) image width
+     * @param INT $height (optional) image height
+     * @param INT $quality (optional) image quality default = 80
+     */
+    uploadImageInPublic($reqFile,$path,$old_file="",$allowedImageType=[],$maxSize="",$format='',$width="",$height=null,$quality=null) 
+
+    /**
+     * upload file in storage folder
+     * @param FILE $reqFile (mandetory) uploaded file
+     * @param STRING $path (mandetory) file path where upload iamge
+     * @param STRING $oldFile (optional) old file name
+     * @param ARRAY $allowedImageType  (optional) allowed image type like ["png","webp","jpeg"]
+     * @param INT $maxSize (optional) max upload size in KB 1024KB = 1MB
+     */
+    uploadFileInStorage($reqFile,$path,$old_file="",$allowedImageType=[],$maxSize="")
+
+     /**
+     * upload file in public folder
+     * @param FILE $reqFile (mandetory) uploaded file
+     * @param STRING $path (mandetory) file path where upload iamge
+     * @param STRING $oldFile (optional) old file name
+     * @param ARRAY $allowedImageType  (optional) allowed image type like ["png","webp","jpeg"]
+     * @param INT $maxSize (optional) max upload size in KB 1024KB = 1MB
+     */
+    ploadFileInPublic($reqFile,$path,$old_file="",$allowedImageType=[],$maxSize="")
+
+
+    // delete file path
+    unlinkFile($path,$oldFile)
+
+    // get file view path for storage folder
+    showStorageFileViewPath($path,$fileName)
+
+    // get file view path for public folder
+    showFileViewPath($path,$fileName)
+
+    // get allowed image type
+    allowedTypes()
+
+    // get allowed image type
+    allowedFileExtensions()
+``` 

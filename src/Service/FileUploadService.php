@@ -2,45 +2,36 @@
 
 namespace Sdtech\FileUploaderLaravel\Service;
 
-use Intervention\Image\ImageManager;
-use Intervention\Image\Drivers\Gd\Driver;
 
-class ImageUploadService
+class FileUploadService
 {
     private $imgManager;
     private $validation;
-    private $fileService;
 
     public function __construct()
     {
-        $this->imgManager = new ImageManager(new Driver());
         $this->validation = new ValidationService();
-        $this->fileService = new FileUploadService();
     }
 
 
     /**
-     * upload image in storage folder
+     * upload file in storage folder
      * @param FILE $reqFile (mandetory) uploaded file
      * @param STRING $path (mandetory) file path where upload iamge
      * @param STRING $oldFile (optional) old file name
-     * @param ARRAY $allowedImageType  (optional) allowed image type like ["png","webp"]
+     * @param ARRAY $allowedFileType  (optional) allowed image type like ["png","webp"]
      * @param INT $maxSize (optional) max upload size in KB 1024KB = 1MB
-     * @param STRING $format (optional) image output format default =webp
-     * @param INT $width (optional) image width
-     * @param INT $height (optional) image height
-     * @param INT $quality (optional) image quality default = 80
      *
      */
-    public function uploadImageInStorage($reqFile,$path,$oldFile=null,$allowedImageType=[],$maxSize="",$format=null,$width=null,$height=null,$quality=null) {
+    public function uploadFileInStorage($reqFile,$path,$oldFile=null,$allowedFileType=[],$maxSize="") {
         $data = [];
         try {
-            $checkValidation = $this->validation->imageValidationBeforeUpload($reqFile,$allowedImageType,$maxSize);
+            $checkValidation = $this->validation->fileValidationBeforeUpload($reqFile,$allowedFileType,$maxSize);
 
             if ($checkValidation['success'] == false) {
                 return $checkValidation;
             }
-            $getExt = $this->validation->getFileExt($reqFile,'image',$format);
+            $getExt = $this->validation->getFileExt($reqFile,'file',"");
             if ($getExt['success'] == false) {
                 return $getExt;
             }
@@ -58,19 +49,17 @@ class ImageUploadService
             $data['file_ext'] = $getExt['data']['file_ext'];
             $data['file_name'] = $getExt['data']['file_name'];
 
-
-            $data['quality'] = !empty($quality) ? intval($quality) : intval(config('fileuploaderlaravel.DEFAULT_IMAGE_QUALITY'));
-
             $data['path'] = $path.'/'.$data['file_name'];
             $data['file_path'] = $storagePath.'/'.$data['file_name'];
-            $data['file_url'] = $this->fileService->showStorageFileViewPath($path,$data['file_name']);
+            $data['file_url'] = $this->showStorageFileViewPath($path,$data['file_name']);
 
             // Remove the old file if it exists
             if (!empty($oldFile)) {
-                $this->fileService->unlinkFile($storagePath,$oldFile);
+                $this->unlinkFile($storagePath,$oldFile);
             }
 
-            $this->saveImageProcess($data['file_ext'],$reqFile,$storagePath,$data['file_name'],$width,$height,$quality);
+            $this->saveFileProcess('storage',$reqFile,$path,$data['file_name']);
+
             return $this->validation->sendResponse(true,200,'upload success',$data);
         } catch(\Exception $e) {
             return $this->validation->sendResponse(false,500,$e->getMessage());
@@ -92,15 +81,15 @@ class ImageUploadService
      * @param INT $quality (optional) image quality default = 80
      *
      */
-    public function uploadImageInPublic($reqFile,$path,$oldFile=null,$allowedImageType=[],$maxSize="",$format=null,$width=null,$height=null,$quality=null) {
+    public function uploadFileInPublic($reqFile,$path,$oldFile=null,$allowedFileType=[],$maxSize="") {
         $data = [];
         try {
-            $checkValidation = $this->validation->imageValidationBeforeUpload($reqFile,$allowedImageType,$maxSize);
+            $checkValidation = $this->validation->fileValidationBeforeUpload($reqFile,$allowedFileType,$maxSize);
 
             if ($checkValidation['success'] == false) {
                 return $checkValidation;
             }
-            $getExt = $this->validation->getFileExt($reqFile,'image',$format);
+            $getExt = $this->validation->getFileExt($reqFile,'file',"");
             if ($getExt['success'] == false) {
                 return $getExt;
             }
@@ -118,47 +107,50 @@ class ImageUploadService
             $data['file_ext'] = $getExt['data']['file_ext'];
             $data['file_name'] = $getExt['data']['file_name'];
 
-
-            $data['quality'] = !empty($quality) ? intval($quality) : intval(config('fileuploaderlaravel.DEFAULT_IMAGE_QUALITY'));
-
             $data['path'] = $path.'/'.$data['file_name'];
             $data['file_path'] = $filePath.'/'.$data['file_name'];
-            $data['file_url'] = $this->fileService->showFileViewPath($path,$data['file_name']);
+            $data['file_url'] = $this->showFileViewPath($path,$data['file_name']);
 
 
             // Remove the old file if it exists
             if (!empty($oldFile)) {
-                $this->fileService->unlinkFile($filePath,$oldFile);
+                $this->unlinkFile($filePath,$oldFile);
             }
 
-            $this->saveImageProcess($data['file_ext'],$reqFile,$filePath,$data['file_name'],$width,$height,$quality);
+            $this->saveFileProcess('public',$reqFile,$filePath,$data['file_name']);
             return $this->validation->sendResponse(true,200,'upload success',$data);
         } catch(\Exception $e) {
             return $this->validation->sendResponse(false,500,$e->getMessage());
         }
     }
 
-    // save image path
-    public function saveImageProcess($outputExt,$reqFile,$filePath,$fileName,$width=null,$height=null,$quality=null) {
-
-        $file = $this->imgManager->read($reqFile);
-        if ($width != null && $height != null && is_int($width) && is_int($height)) {
-            $file = $file->scale($width,$height);
-        }
-
-        $filePathName = $filePath.'/'.$fileName;
-        if ($outputExt == 'png') {
-            $file->toPng()->save($filePathName);
-        } elseif($outputExt == 'jpeg') {
-            $file->toJpeg(intval($quality),true)->save($filePathName);;
-        } elseif($outputExt == 'gif') {
-            $file->toGif(true)->save($filePathName);
-        } elseif($outputExt == 'bmp') {
-            $file->toJpeg(intval($quality),true)->save($filePathName);
+    // save file path
+    public function saveFileProcess($type,$reqFile,$filePath,$fileName) {
+        if ($type == 'storage') {
+            // Store the file in the storage directory
+            // dd($reqFile,$filePath,$fileName);
+            $reqFile->storeAs('public/'.$filePath, $fileName);
         } else {
-            $file->toWebp(intval($quality),true)->save($filePathName);
+            // Store the file in the public directory
+            $reqFile->move($filePath, $fileName);
         }
     }
 
 
+
+    // delete image path
+    public function unlinkFile($path,$oldFile) {
+        if (!empty($oldFile) && file_exists($path . '/' . $oldFile)) {
+            unlink($path . '/' . $oldFile);
+        }
+    }
+
+    // get image view path for storage folder
+    public function showStorageFileViewPath($path,$fileName){
+        return asset('storage/' . $path .'/'. $fileName);
+    }
+    // get image view path for public folder
+    public function showFileViewPath($path,$fileName){
+        return asset($path .'/'. $fileName);
+    }
 }
