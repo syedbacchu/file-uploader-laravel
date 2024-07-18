@@ -38,7 +38,7 @@ class FileUploadLaravelServiceProviders extends ServiceProvider
      */
     public function register()
     {
-        $this->app->singleton("FileUploadLaravelService", function ($app) {
+        $this->app->singleton(FileUploadLaravelService::class, function ($app) {
             return new FileUploadLaravelService();
         });
     }
