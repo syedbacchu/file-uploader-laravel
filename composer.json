@@ -30,7 +30,10 @@
     "autoload": {
         "psr-4": {
             "Sdtech\\FileUploaderLaravel\\": "src/"
-        }
+        },
+        "files": [
+            "src/Service/FileUploadLaravelService.php"
+        ]
     },
     "config": {
         "sort-packages": true

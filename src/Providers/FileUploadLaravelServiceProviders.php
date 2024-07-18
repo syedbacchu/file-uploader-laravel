@@ -5,7 +5,6 @@ namespace Sdtech\FileUploaderLaravel\Providers;
 
 
 use Illuminate\Support\ServiceProvider;
-use Sdtech\FileUploaderLaravel\Service\FileUploadLaravelService;
 
 class FileUploadLaravelServiceProviders extends ServiceProvider
 {
@@ -38,9 +37,7 @@ class FileUploadLaravelServiceProviders extends ServiceProvider
      */
     public function register()
     {
-        $this->app->singleton(FileUploadLaravelService::class, function ($app) {
-            return new FileUploadLaravelService();
-        });
+        
     }
 
     /**
