@@ -90,10 +90,7 @@ class ValidationService
     }
 
     private function validateUploadFileType($type,$file,$allowedType=[]) {
-        // Check for file errors
-        if (!$file->isValid()) {
-            return $this->sendResponse(true,400,__('File upload error'));
-        }
+        
         if ($type == 'image') {
             $allowedTypes = $this->allowedMimeTypes($allowedType);
             $data['mime_type'] = $file->getMimeType();
