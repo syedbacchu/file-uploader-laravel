@@ -31,7 +31,14 @@ The current features are :
 ```bash
 composer require sdtech/file-uploader-laravel
 ```
-2. Publish the packages views, config file, assets, and language files by running the following from your projects root folder:
+2. In config/app.php, add it:
+```php
+'providers' => [
+    // Other Service Providers...
+    Sdtech\FileUploaderLaravel\Providers\FileUploadLaravelServiceProviders::class,
+],
+```
+3. Publish the packages views, config file, assets, and language files by running the following from your projects root folder:
 
 ```bash
 php artisan vendor:publish --tag=fileuploaderlaravel
