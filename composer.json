@@ -38,12 +38,6 @@
     "config": {
         "sort-packages": true
     },
-    "extra": {
-        "laravel": {
-            "providers": [
-                "Sdtech\\FileUploaderLaravel\\Providers\\FileUploadLaravelServiceProviders"
-            ]
-        }
-    },
+    
     "prefer-stable": true
 }
