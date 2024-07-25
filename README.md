@@ -84,6 +84,7 @@ class UploadController extends Controller
         return $response;
     }
 }
+- in the same way you can use other function as well
 ```
 
 ## some functions
