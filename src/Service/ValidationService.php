@@ -122,7 +122,7 @@ class ValidationService
         $size = $file->getSize(); // Get the size of the image in bytes
 
         // Convert maxSize from KB to bytes
-        $maxUploadSize = !empty($maxSize) && $maxSize > 0 ? intval($maxSize) * 1024 : intval(config('fileuploaderlaravel.MAX_UPLOAD_IMAGE_SIZE')); // Size in bytes
+        $maxUploadSize = !empty($maxSize) && $maxSize > 0 ? intval($maxSize) * 1024 : intval(config('fileuploaderlaravel.MAX_UPLOAD_IMAGE_SIZE')) * 1024; // Size in bytes
 
         if ($size > $maxUploadSize) {
             return $this->sendResponse(false, 422, __('File size exceeds the maximum allowed size of ') . $maxUploadSize . ' KB');
