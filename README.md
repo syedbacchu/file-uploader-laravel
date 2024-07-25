@@ -69,13 +69,29 @@ sudo chmod -R 777 storage
 ## Uses
 5. We provide a sample code of functionality that will help you to integrate easily
 
+```php
 
+use Sdtech\FileUploaderLaravel\Service\FileUploadLaravelService;
 
+class UploadController extends Controller
+{
+    public function uploadImg(Request $request) {
+
+        $service = new FileUploadLaravelService();
+        $reqFile = $request->img;
+        $path = 'uploads';
+        $response = $service->uploadImageInStorage($reqFile,$path);
+        return $response;
+    }
+}
+```
+
+## some functions
 ### upload image in storage folder
 ```php
 @param FILE $reqFile (mandetory) uploaded file
 @param STRING $path (mandetory) file path where upload iamge
-@param STRING $oldFile (optional) old file name
+@param STRING $oldFile (optional) old file name  // $oldFile = '1720705563668fe21b791d2.png';
 @param ARRAY $allowedImageType  (optional) allowed image type like ["png","webp","jpeg"]
 @param INT $maxSize (optional) max upload size in KB 1024KB = 1MB
 @param STRING $format (optional) image output format default = webp
