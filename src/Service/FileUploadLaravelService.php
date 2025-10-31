@@ -49,6 +49,13 @@ class FileUploadLaravelService extends BaseService
     }
 
     /**
+     * upload image in s3
+     */
+    public function _uploadImageInS3($reqFile,$path,$old_file="",$allowedImageType=[],$maxSize="", $format='',$width="",$height=null,$quality=null) {
+        return $this->imageService->uploadImageInS3($reqFile,$path,$old_file,$allowedImageType,$maxSize,$format,$width,$height,$quality);
+    }
+
+    /**
      * upload file in storage folder
      * @param FILE $reqFile (mandetory) uploaded file
      * @param STRING $path (mandetory) file path where upload iamge
@@ -72,10 +79,21 @@ class FileUploadLaravelService extends BaseService
         return $this->fileService->uploadFileInPublic($reqFile,$path,$old_file,$allowedImageType,$maxSize);
     }
 
+    /**
+     * upload file in s3
+     */
+    public function _uploadFileInS3($reqFile,$path,$old_file="",$allowedImageType=[],$maxSize="") {
+        return $this->fileService->uploadFileInS3($reqFile,$path,$old_file,$allowedImageType,$maxSize);
+    }
+
 
     // delete file path
     public function _unlinkFile($path,$oldFile) {
         return $this->fileService->unlinkFile($path,$oldFile);
+    }
+
+    public function _unlinkS3File($path,$oldFile) {
+        return $this->fileService->unlinkS3File($path,$oldFile);
     }
 
     // get file view path for storage folder
@@ -85,6 +103,10 @@ class FileUploadLaravelService extends BaseService
     // get file view path for public folder
     public function _showFileViewPath($path,$fileName){
         return $this->fileService->showFileViewPath($path,$fileName);
+    }
+    // get file view path for s3
+    public function _showS3FileViewPath($path,$fileName){
+        return $this->fileService->showS3FileViewPath($path,$fileName);
     }
 
     // get allowed image type

@@ -14,11 +14,15 @@
 
 ## About
 
-A simple library that help you to to upload image and file.
-The current features are :
+A lightweight, framework-friendly Laravel package to validate and upload images/files with zero headaches. Now supports three upload targets out of the box: local storage, public folder, and Amazon S3. Image operations (resize, format conversion, quality) are handled via Intervention/Image.
 
-- Upload file
-- Upload Image
+Current features:
+
+- Upload to local storage (`storage/app/public`)
+- Upload to public folder (`public/`)
+- Upload to Amazon S3 (via Flysystem S3 adapter)
+- Image validation, resizing, and format conversion (webp/png/jpeg/gif/bmp)
+- Simple, consistent response structure
 
 ## Requirements
 
@@ -59,7 +63,29 @@ php artisan vendor:publish --tag=fileuploaderlaravel
 'AWS_BUCKET' => env('AWS_BUCKET'),
 'AWS_URL' => env('AWS_URL')
 ```
-4. run this commad 
+
+For S3 uploads, ensure your application's `config/filesystems.php` has the `s3` disk configured.
+
+The following dependencies are installed automatically when you install this package:
+- league/flysystem-aws-s3-v3
+- aws/aws-sdk-php
+
+If anyone faces any issues to install it, you can use:
+```bash
+composer require sdtech/file-uploader-laravel --ignore-platform-reqs
+```
+
+Example env:
+```env
+FILESYSTEM_DISK=public
+AWS_ACCESS_KEY_ID=...
+AWS_SECRET_ACCESS_KEY=...
+AWS_DEFAULT_REGION=ap-south-1
+AWS_BUCKET=your-bucket
+AWS_URL=https://your-cdn-or-bucket-url
+```
+
+4. run this command 
 ```php
 php artisan storage:link
 ```
@@ -82,6 +108,21 @@ class UploadController extends Controller
         $path = 'uploads';
         $response = $service->uploadImageInStorage($reqFile,$path);
         return $response;
+    }
+
+    public function uploadImgToS3(Request $request) {
+        $service = new FileUploadLaravelService();
+        $reqFile = $request->img;
+        $path = 'uploads';
+        // optional: width/height/quality/format
+        return $service->uploadImageInS3($reqFile, $path);
+    }
+
+    public function uploadFileToS3(Request $request) {
+        $service = new FileUploadLaravelService();
+        $reqFile = $request->file('file');
+        $path = 'files';
+        return $service->uploadFileInS3($reqFile, $path);
     }
 }
  in the same way you can use other function as well
@@ -121,6 +162,23 @@ uploadImageInStorage($reqFile,$path,$old_file="",$allowedImageType=[],$maxSize="
 ```php 
 uploadImageInPublic($reqFile,$path,$old_file="",$allowedImageType=[],$maxSize="",$format='',$width="",$height=null,$quality=null) 
 ```
+### upload image to s3
+```php
+@param FILE $reqFile (mandetory) uploaded file
+@param STRING $path (mandetory) s3 key prefix (folder) e.g. images/products
+@param STRING $oldFile (optional) old file name
+@param ARRAY $allowedImageType  (optional) allowed image type like ["png","webp","jpeg"]
+@param INT $maxSize (optional) max upload size in KB 1024KB = 1MB
+@param STRING $format (optional) image output format default = webp
+@param INT $width (optional) image width
+@param INT $height (optional) image height
+@param INT $quality (optional) image quality default = 80
+```
+
+```php
+uploadImageInS3($reqFile,$path,$old_file="",$allowedImageType=[],$maxSize="",$format='',$width="",$height=null,$quality=null)
+```
+
 ### upload file in storage folder
 ```php
 @param FILE $reqFile (mandetory) uploaded file
@@ -143,6 +201,18 @@ uploadFileInStorage($reqFile,$path,$old_file="",$allowedImageType=[],$maxSize=""
 
 ```php
 ploadFileInPublic($reqFile,$path,$old_file="",$allowedImageType=[],$maxSize="")
+```
+
+### upload file to s3
+```php
+@param FILE $reqFile (mandetory) uploaded file
+@param STRING $path (mandetory) s3 key prefix (folder)
+@param STRING $oldFile (optional) old file name
+@param ARRAY $allowedImageType  (optional) allowed image type like ["png","webp","jpeg"]
+@param INT $maxSize (optional) max upload size in KB 1024KB = 1MB
+```
+```php
+uploadFileInS3($reqFile,$path,$old_file="",$allowedImageType=[],$maxSize="")
 ```
 
 ### delete file path

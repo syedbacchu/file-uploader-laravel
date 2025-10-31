@@ -2,6 +2,7 @@
 
 namespace Sdtech\FileUploaderLaravel\Service;
 
+use Illuminate\Support\Facades\Storage;
 
 class FileUploadService
 {
@@ -124,6 +125,44 @@ class FileUploadService
         }
     }
 
+    /**
+     * upload file to s3 disk
+     */
+    public function uploadFileInS3($reqFile,$path,$oldFile=null,$allowedFileType=[],$maxSize="") {
+        $data = [];
+        try {
+            $checkValidation = $this->validation->fileValidationBeforeUpload($reqFile,$allowedFileType,$maxSize);
+            if ($checkValidation['success'] == false) {
+                return $checkValidation;
+            }
+            $getExt = $this->validation->getFileExt($reqFile,'file',"");
+            if ($getExt['success'] == false) {
+                return $getExt;
+            }
+
+            $data['file_ext_original'] = $getExt['data']['file_ext_original'];
+            $data['file_ext'] = $getExt['data']['file_ext'];
+            $data['file_name'] = $getExt['data']['file_name'];
+
+            $data['path'] = $path.'/'.$data['file_name'];
+            $data['file_path'] = $data['path'];
+
+            // Remove the old file from s3 if it exists
+            if (!empty($oldFile)) {
+                Storage::disk('s3')->delete($path.'/'.$oldFile);
+            }
+
+            // store to s3 with public visibility
+            $reqFile->storeAs($path, $data['file_name'], ['disk' => 's3', 'visibility' => 'public']);
+
+            $data['file_url'] = $this->showS3FileViewPath($path,$data['file_name']);
+
+            return $this->validation->sendResponse(true,200,'upload success',$data);
+        } catch(\Exception $e) {
+            return $this->validation->sendResponse(false,500,$e->getMessage());
+        }
+    }
+
     // save file path
     public function saveFileProcess($type,$reqFile,$filePath,$fileName) {
         if ($type == 'storage') {
@@ -145,6 +184,12 @@ class FileUploadService
         }
     }
 
+    public function unlinkS3File($path,$oldFile) {
+        if (!empty($oldFile)) {
+            Storage::disk('s3')->delete($path . '/' . $oldFile);
+        }
+    }
+
     // get image view path for storage folder
     public function showStorageFileViewPath($path,$fileName){
         return asset('storage/' . $path .'/'. $fileName);
@@ -152,5 +197,9 @@ class FileUploadService
     // get image view path for public folder
     public function showFileViewPath($path,$fileName){
         return asset($path .'/'. $fileName);
+    }
+    // get file view path for s3
+    public function showS3FileViewPath($path,$fileName){
+        return Storage::disk('s3')->url($path .'/'. $fileName);
     }
 }

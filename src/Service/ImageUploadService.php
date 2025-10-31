@@ -2,6 +2,7 @@
 
 namespace Sdtech\FileUploaderLaravel\Service;
 
+use Illuminate\Support\Facades\Storage;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
 
@@ -132,6 +133,60 @@ class ImageUploadService
             }
 
             $this->saveImageProcess($data['file_ext'],$reqFile,$filePath,$data['file_name'],$width,$height,$quality);
+            return $this->validation->sendResponse(true,200,'upload success',$data);
+        } catch(\Exception $e) {
+            return $this->validation->sendResponse(false,500,$e->getMessage());
+        }
+    }
+
+    /**
+     * upload image to s3 disk
+     */
+    public function uploadImageInS3($reqFile,$path,$oldFile=null,$allowedImageType=[],$maxSize="",$format=null,$width=null,$height=null,$quality=null) {
+        $data = [];
+        try {
+            $checkValidation = $this->validation->imageValidationBeforeUpload($reqFile,$allowedImageType,$maxSize);
+            if ($checkValidation['success'] == false) {
+                return $checkValidation;
+            }
+            $getExt = $this->validation->getFileExt($reqFile,'image',$format);
+            if ($getExt['success'] == false) {
+                return $getExt;
+            }
+
+            $data['file_ext_original'] = $getExt['data']['file_ext_original'];
+            $data['file_ext'] = $getExt['data']['file_ext'];
+            $data['file_name'] = $getExt['data']['file_name'];
+
+            $data['quality'] = !empty($quality) ? intval($quality) : intval(config('fileuploaderlaravel.DEFAULT_IMAGE_QUALITY'));
+
+            $data['path'] = $path.'/'.$data['file_name'];
+            $data['file_path'] = $data['path'];
+
+            // Remove the old file from s3 if it exists
+            if (!empty($oldFile)) {
+                Storage::disk('s3')->delete($path.'/'.$oldFile);
+            }
+
+            // process to a temporary file, then upload to s3
+            $tmpDir = sys_get_temp_dir();
+            $tmpPath = rtrim($tmpDir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $data['file_name'];
+
+            $this->saveImageProcess($data['file_ext'],$reqFile,$tmpDir,$data['file_name'],$width,$height,$quality);
+
+            // upload
+            $stream = fopen($tmpPath, 'r');
+            Storage::disk('s3')->put($data['path'], $stream, ['visibility' => 'public']);
+            if (is_resource($stream)) {
+                fclose($stream);
+            }
+            // cleanup
+            if (file_exists($tmpPath)) {
+                @unlink($tmpPath);
+            }
+
+            $data['file_url'] = $this->fileService->showS3FileViewPath($path,$data['file_name']);
+
             return $this->validation->sendResponse(true,200,'upload success',$data);
         } catch(\Exception $e) {
             return $this->validation->sendResponse(false,500,$e->getMessage());
