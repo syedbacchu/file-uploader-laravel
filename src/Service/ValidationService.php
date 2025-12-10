@@ -19,7 +19,8 @@ class ValidationService
             'success' => $success,
             'status' => $status,
             'message' => $message ? $message : __('Something went wrong'),
-            'data' => $data
+            'data' => $data,
+            'error_message' => $message,
         ];
     }
 
@@ -158,7 +159,16 @@ class ValidationService
     }
 
     public function getFileExt($file,$type,$ext ="") {
+        $data = [];
+        $data['original_name'] = $file->getClientOriginalName();
+        $data['size'] = $file->getSize();
+
         if ($type == 'image') {
+            $dimensions = getimagesize($file);
+            $data['dimensions'] = [
+                'width' => $dimensions[0],
+                'height' => $dimensions[1]
+            ];
             $data['file_ext_original'] = $file->getClientOriginalExtension();
             $data['file_ext'] = !empty($ext) ? $ext : config('fileuploaderlaravel.DEFAULT_IMAGE_FORMAT');
             if (empty($data['file_ext'])) {
@@ -170,6 +180,10 @@ class ValidationService
                 return $this->sendResponse(false,422,__('Invalid output extenstion , allowed extensions are '.implode(',',$this->allowedTypes())));
             }
         } else {
+            $data['dimensions'] = [
+                'width' => 0,
+                'height' => 0
+            ];
             $data['file_ext_original'] = $file->getClientOriginalExtension();
             $data['file_ext'] = $data['file_ext_original'];
             $data['file_name'] = time().uniqid().'.'.$data['file_ext'];

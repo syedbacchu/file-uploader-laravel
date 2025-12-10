@@ -59,6 +59,9 @@ class ImageUploadService
             $data['file_ext'] = $getExt['data']['file_ext'];
             $data['file_name'] = $getExt['data']['file_name'];
 
+            $data['original_name']     = $getExt['data']['original_name'];
+            $data['size']              = $getExt['data']['size'];
+            $data['dimensions']        = $getExt['data']['dimensions']; // width + height
 
             $data['quality'] = !empty($quality) ? intval($quality) : intval(config('fileuploaderlaravel.DEFAULT_IMAGE_QUALITY'));
 
@@ -119,7 +122,9 @@ class ImageUploadService
             $data['file_ext'] = $getExt['data']['file_ext'];
             $data['file_name'] = $getExt['data']['file_name'];
 
-
+            $data['original_name']     = $getExt['data']['original_name'];
+            $data['size']              = $getExt['data']['size'];
+            $data['dimensions']        = $getExt['data']['dimensions']; // width + height
             $data['quality'] = !empty($quality) ? intval($quality) : intval(config('fileuploaderlaravel.DEFAULT_IMAGE_QUALITY'));
 
             $data['path'] = $path.'/'.$data['file_name'];
@@ -157,7 +162,9 @@ class ImageUploadService
             $data['file_ext_original'] = $getExt['data']['file_ext_original'];
             $data['file_ext'] = $getExt['data']['file_ext'];
             $data['file_name'] = $getExt['data']['file_name'];
-
+            $data['original_name']     = $getExt['data']['original_name'];
+            $data['size']              = $getExt['data']['size'];
+            $data['dimensions']        = $getExt['data']['dimensions']; // width + height
             $data['quality'] = !empty($quality) ? intval($quality) : intval(config('fileuploaderlaravel.DEFAULT_IMAGE_QUALITY'));
 
             $data['path'] = $path.'/'.$data['file_name'];
