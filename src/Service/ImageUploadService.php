@@ -74,7 +74,7 @@ class ImageUploadService
                 $this->fileService->unlinkFile($storagePath,$oldFile);
             }
 
-            $this->saveImageProcess($data['file_ext'],$reqFile,$storagePath,$data['file_name'],$width,$height,$quality);
+            $this->saveImageProcess($data['file_ext'],$reqFile,$storagePath,$data['file_name'],$width,$height,$data['quality']);
             return $this->validation->sendResponse(true,200,'upload success',$data);
         } catch(\Exception $e) {
             return $this->validation->sendResponse(false,500,$e->getMessage());
@@ -137,7 +137,7 @@ class ImageUploadService
                 $this->fileService->unlinkFile($filePath,$oldFile);
             }
 
-            $this->saveImageProcess($data['file_ext'],$reqFile,$filePath,$data['file_name'],$width,$height,$quality);
+            $this->saveImageProcess($data['file_ext'],$reqFile,$filePath,$data['file_name'],$width,$height,$data['quality']);
             return $this->validation->sendResponse(true,200,'upload success',$data);
         } catch(\Exception $e) {
             return $this->validation->sendResponse(false,500,$e->getMessage());
@@ -179,7 +179,7 @@ class ImageUploadService
             $tmpDir = sys_get_temp_dir();
             $tmpPath = rtrim($tmpDir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $data['file_name'];
 
-            $this->saveImageProcess($data['file_ext'],$reqFile,$tmpDir,$data['file_name'],$width,$height,$quality);
+            $this->saveImageProcess($data['file_ext'],$reqFile,$tmpDir,$data['file_name'],$width,$height,$data['quality']);
 
             // upload
             $stream = fopen($tmpPath, 'r');
@@ -202,6 +202,7 @@ class ImageUploadService
 
     // save image path
     public function saveImageProcess($outputExt,$reqFile,$filePath,$fileName,$width=null,$height=null,$quality=null) {
+        $quality = !is_null($quality) ? intval($quality) : intval(config('fileuploaderlaravel.DEFAULT_IMAGE_QUALITY'));
 
         $file = $this->imgManager->read($reqFile);
         if ($width != null && $height != null && is_int($width) && is_int($height)) {
